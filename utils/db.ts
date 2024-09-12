@@ -131,13 +131,8 @@ export const textGenModels: Model[] = [{
 }]
 
 export const imageGenModels: Model[] = [{
-    id: '@cf/lykon/dreamshaper-8-lcm',
-    name: 'dreamshaper-8-lcm',
-    provider: 'workers-ai-image',
-    type: 'text-to-image'
-}, {
-    id: '@cf/stabilityai/stable-diffusion-xl-base-1.0',
-    name: 'stable-diffusion-xl-base-1.0',
+    id: '@cf/runwayml/stable-diffusion-v1-5-inpainting',
+    name: 'stable-diffusion-v1-5-inpainting',
     provider: 'workers-ai-image',
     type: 'text-to-image'
 }, {
