@@ -131,8 +131,8 @@ export const textGenModels: Model[] = [{
 }]
 
 export const imageGenModels: Model[] = [{
-    id: '@cf/runwayml/stable-diffusion-v1-5-inpainting',
-    name: 'stable-diffusion-v1-5-inpainting',
+    id: '@cf/stabilityai/stable-diffusion-xl-base-1.0',
+    name: 'stable-diffusion-xl-base-1.0',
     provider: 'workers-ai-image',
     type: 'text-to-image'
 }, {
