@@ -83,8 +83,8 @@ export const uniModals: Model[] = [
 ]
 
 export const textGenModels: Model[] = [{
-    id: 'gpt-3.5-turbo',
-    name: 'ChatGPT-3.5-turbo',
+    id: 'gpt-4o',
+    name: 'ChatGPT-4o',
     provider: 'openai',
     endpoint: 'chat/completions',
     type: 'chat'
@@ -119,13 +119,8 @@ export const textGenModels: Model[] = [{
     provider: 'workers-ai',
     type: 'chat'
 }, {
-    id: '@cf/meta/llama-3-8b-instruct',
-    name: 'llama-3-8b-instruct',
-    provider: 'workers-ai',
-    type: 'chat'
-}, {
-    id: '@cf/meta/llama-3.1-8b-instruct',
-    name: 'llama-3.1-8b-instruct',
+    id: '@cf/meta/llama-3.2-11b-vision-instruct',
+    name: 'llama-3.2-11b-vision-instruct',
     provider: 'workers-ai',
     type: 'chat'
 }]
@@ -138,6 +133,11 @@ export const imageGenModels: Model[] = [{
 }, {
     id: '@cf/bytedance/stable-diffusion-xl-lightning',
     name: 'stable-diffusion-xl-lightning',
+    provider: 'workers-ai-image',
+    type: 'text-to-image'
+}, {
+    id: '@cf/runwayml/stable-diffusion-v1-5-inpainting',
+    name: 'stable-diffusion-v1-5-inpainting',
     provider: 'workers-ai-image',
     type: 'text-to-image'
 }]
