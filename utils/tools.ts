@@ -44,7 +44,7 @@ export function getSystemPrompt() {
         role: 'system',
         content
     };
-    return [prompt, p];
+    return prompt, p;
 }
 
 export function getMessages(history: HistoryItem[], options?: {
