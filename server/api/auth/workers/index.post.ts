@@ -15,7 +15,6 @@ export default defineEventHandler(async (event) => {
         headers: {
             Authorization: `Bearer ${process.env.CF_TOKEN}`,
             'Content-Type': 'application/json',
-            "prompt": "agree",
         },
         body: JSON.stringify(workersBody)
     })
