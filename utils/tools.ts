@@ -36,14 +36,15 @@ export function scrollToTop(el: HTMLElement | null) {
 
 export function getSystemPrompt() {
     const content = JSON.parse(localStorage.getItem('settings') || '{}').system_prompt || 'You are ChatGPT, a large language model trained by OpenAI. Follow the user\'s instructions carefully. Respond using markdown.'
+    const prompt: OpenAIMessage = {
+        role: 'prompt',
+        content: 'agree'
+    };
     const p: OpenAIMessage = {
-        role: 'prompt': "agree"
-    },
-    {
         role: 'system',
         content
-    }
-    return p
+    };
+    return [prompt, p];
 }
 
 export function getMessages(history: HistoryItem[], options?: {
