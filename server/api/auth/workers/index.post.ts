@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
 
     const workersBody: WorkersBody = {
         stream: true,
+        prompt: "agree",
         messages,
     }
 
