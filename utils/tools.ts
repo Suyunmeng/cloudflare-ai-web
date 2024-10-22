@@ -41,9 +41,8 @@ export function getSystemPrompt() {
         role: 'system',
         content
     }
-    return { ...promptMessage, ...systemMessage };  // 将它们合并为一个对象返回
+    return [promptMessage, systemMessage];  // 返回两个独立对象作为数组元素，但不合并
 }
-
 
 export function getMessages(history: HistoryItem[], options?: {
     addHistory: boolean,
