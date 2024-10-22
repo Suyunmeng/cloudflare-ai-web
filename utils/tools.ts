@@ -36,12 +36,17 @@ export function scrollToTop(el: HTMLElement | null) {
 
 export function getSystemPrompt() {
     const content = JSON.parse(localStorage.getItem('settings') || '{}').system_prompt || 'You are ChatGPT, a large language model trained by OpenAI. Follow the user\'s instructions carefully. Respond using markdown.'
-    const promptMessage = { prompt: 'agree' };  // 独立的 prompt 对象
     const systemMessage: OpenAIMessage = {
         role: 'system',
         content
     }
-    return promptMessage, systemMessage  // 返回两个独立对象作为数组元素，但不合并
+    return systemMessage  // 返回两个独立对象作为数组元素，但不合并
+}
+
+export function getLicencePrompt() {
+    const content = JSON.parse(localStorage.getItem('settings') || '{}').system_prompt || 'You are ChatGPT, a large language model trained by OpenAI. Follow the user\'s instructions carefully. Respond using markdown.'
+    const promptMessage = { prompt: 'agree' }
+    return promptMessage  // 返回两个独立对象作为数组元素，但不合并
 }
 
 export function getMessages(history: HistoryItem[], options?: {
@@ -56,6 +61,7 @@ export function getMessages(history: HistoryItem[], options?: {
     }
     if (options?.addHistory)
         return [
+            getLicencePrompt();
             getSystemPrompt()
         ].concat(history.slice(0, -1).filter(i => i.type === 'text').map((item) => {
             return {
@@ -65,6 +71,7 @@ export function getMessages(history: HistoryItem[], options?: {
         }))
     else
         return [
+            getLicencePrompt();
             getSystemPrompt()
         ].concat({
             role: history[history.length - 2].role,
