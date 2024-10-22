@@ -53,7 +53,7 @@ export interface OpenAIRes {
 
 export interface WorkersBody {
     stream: boolean
-    prompt: "agree"
+    prompt: agree
     messages: OpenAIMessage[]
 }
 
@@ -64,6 +64,7 @@ export interface WorkersBodyImage {
 
 export interface WorkersReq {
     model: string
+    prompt: agree
     messages: OpenAIMessage[]
 }
 
