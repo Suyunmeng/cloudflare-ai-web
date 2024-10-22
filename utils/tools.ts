@@ -1,150 +1,149 @@
-import {useThrottleFn} from "@vueuse/shared";
+<script setup lang="ts">
+import {compressionFile, handleImgZoom} from "~/utils/tools";
 
-const TOKEN_KEY = 'access_pass'
+const input = ref('')
+const addHistory = ref(true)
+const fileList = ref<{
+  file: File
+  url: string
+}[]>([])
+const {openModelSelect} = useGlobalState()
 
-export const isLogin = () => {
-    return !!localStorage.getItem(TOKEN_KEY)
+onMounted(() => {
+  addHistory.value = localStorage.getItem('addHistory') === 'true'
+})
+watch(addHistory, () => {
+  localStorage.setItem('addHistory', addHistory.value.toString())
+})
+
+const p = defineProps<{
+  loading: boolean
+  selectedModel: Model
+
+  handleSend: (input: string, addHistory: boolean, files: {
+    file: File
+    url: string
+  }[], messageObject: object) => void // 增加一个messageObject参数，用于传递格式化消息
+}>()
+
+function handleInput(e: KeyboardEvent) {
+  if (e.shiftKey) {
+    input.value += '\n'
+  }
+  if (e.isComposing || e.shiftKey) {
+    return
+  }
+
+  if (input.value.trim() === '') return
+  if (p.loading) return
+
+  // 在发送消息时插入 {prompt: "agree"}
+  const messageObject = {
+    prompt: "agree",
+    systemMessage: { role: "system", content: "系统消息" }, // 系统消息可以根据需求修改
+    userMessage: { role: "user", content: input.value }
+  };
+
+  p.handleSend(input.value, addHistory.value, toRaw(fileList.value), messageObject) // 传递新的messageObject
+
+  input.value = ''
+  fileList.value = []
 }
 
-export const getToken = () => {
-    return localStorage.getItem(TOKEN_KEY)
+const imageType = ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif']
+
+function checkFile(file: File) {
+  if (fileList.value.length >= 5) {
+    alert('最多只能上传5张图片')
+    return false
+  }
+  if (imageType.indexOf(file.type) === -1) {
+    alert(imageType.join(', ') + ' 类型文件才被支持')
+    return false
+  }
+  return true
 }
 
-export const setToken = (token: string) => {
-    localStorage.setItem(TOKEN_KEY, token);
-}
+function handleAddFiles() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = imageType.join(',')
+  input.multiple = true
+  input.onchange = async () => {
+    document.body.style.cursor = 'wait'
 
-export const clearToken = () => {
-    localStorage.removeItem(TOKEN_KEY);
-}
-
-export const scrollStream = (el: HTMLElement, distance: number = 200) => {
-    useThrottleFn(() => {
-        (el.scrollTop + el.clientHeight >= el.scrollHeight - distance) && el.scrollTo({
-            top: el.scrollHeight,
-            behavior: 'smooth'
-        })
-    }, 500)()
-}
-
-export function scrollToTop(el: HTMLElement | null) {
-    el?.scrollTo({
-        top: el.scrollHeight,
-        behavior: 'smooth'
-    })
-}
-
-export function getSystemPrompt() {
-    const content = JSON.parse(localStorage.getItem('settings') || '{}').system_prompt || 'You are ChatGPT, a large language model trained by OpenAI. Follow the user\'s instructions carefully. Respond using markdown.'
-    const pr: OpenAIMessage = {
-        role: 'prompt',
-        content: 'agree'
-    };
-    const p: OpenAIMessage = {
-        role: 'system',
-        content
-    };
-    return pr, p
-}
-
-export function getMessages(history: HistoryItem[], options?: {
-    addHistory: boolean,
-    type: Model['type']
-}) {
-    if (options?.type === 'text-to-image') {
-        return [{
-            role: history[history.length - 2].role,
-            content: history[history.length - 2].content
-        }]
+    const files = Array.from(input.files || [])
+    for (const f of files) {
+      if (!checkFile(f)) continue;
+      const file = await compressionFile(f, f.type)
+      const url = URL.createObjectURL(file)
+      fileList.value.push({file, url})
     }
-    if (options?.addHistory)
-        return [
-            getSystemPrompt()
-        ].concat(history.slice(0, -1).filter(i => i.type === 'text').map((item) => {
-            return {
-                role: item.role,
-                content: item.content
-            }
-        }))
-    else
-        return [
-            getSystemPrompt()
-        ].concat({
-            role: history[history.length - 2].role,
-            content: history[history.length - 2].content
-        })
+
+    document.body.style.cursor = 'auto'
+  }
+  input.click()
 }
 
-export function handleImgZoom(img: HTMLImageElement) {
-    const container = document.createElement('div')
-    container.style.cssText = `
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s;
-    opacity: 0;
-    z-index: 9999;
-  `
-    const imgZoom = document.createElement('img')
-    imgZoom.src = img.src
-    const screenW = screen.width
-    imgZoom.style.cssText = `
-        width: ${screenW > 768 ? '85%' : '100%'};
-        height: ${screenW > 768 ? '85%' : '100%'};
-        object-fit: contain;
-    `
-    container.appendChild(imgZoom)
-    document.body.appendChild(container)
-    container.addEventListener('click', () => {
-        container.style.opacity = '0'
-        setTimeout(() => {
-            document.body.removeChild(container)
-        }, 300)
-    })
+onUnmounted(() => {
+  fileList.value.forEach(i => {
+    URL.revokeObjectURL(i.url)
+  })
+})
 
-    imgZoom.height
-    container.style.opacity = '1'
+const handlePaste = (e: ClipboardEvent) => {
+  const files = Array.from(e.clipboardData?.files || [])
+  files.forEach(file => {
+    if (!checkFile(file)) return
+
+    const url = URL.createObjectURL(file)
+    fileList.value.push({file, url})
+  })
 }
+</script>
 
-const fileToDataURL = (file: Blob): Promise<any> => {
-    return new Promise((resolve) => {
-        const reader = new FileReader()
-        reader.onloadend = (e) => resolve((e.target as FileReader).result)
-        reader.readAsDataURL(file)
-    })
-}
-
-const dataURLToImage = (dataURL: string): Promise<HTMLImageElement> => {
-    return new Promise((resolve) => {
-        const img = new Image()
-        img.onload = () => resolve(img)
-        img.src = dataURL
-    })
-}
-
-const canvastoFile = (canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob | null> => {
-    return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), type, quality))
-}
-
-export const compressionFile = async (file: File, type: string, quality = 0.2) => {
-    const fileName = file.name
-    const canvas = document.createElement('canvas')
-    const context = canvas.getContext('2d') as CanvasRenderingContext2D
-    const base64 = await fileToDataURL(file)
-    const img = await dataURLToImage(base64)
-    canvas.width = img.width
-    canvas.height = img.height
-    context.clearRect(0, 0, img.width, img.height)
-
-    context.fillStyle = '#fff'
-    context.fillRect(0, 0, img.width, img.height)
-
-    context.drawImage(img, 0, 0, img.width, img.height)
-    const blob = (await canvastoFile(canvas, type, quality)) as Blob
-    return new File([blob], fileName, {
-        type: type
-    })
-}
+<template>
+  <div class="relative">
+    <div class="absolute bottom-10 w-full flex flex-col">
+      <UButton class="self-center drop-shadow-xl mb-1 blur-global" color="white"
+               @click="openModelSelect=!openModelSelect">
+        {{ selectedModel.name }}
+        <template #trailing>
+          <UIcon name="i-heroicons-chevron-down-solid"/>
+        </template>
+      </UButton>
+      <ul v-if="selectedModel.type === 'universal'" style="margin: 0"
+          class="flex flex-wrap bg-white dark:bg-[#121212] rounded-t-md">
+        <li v-for="file in fileList" :key="file.url" class="relative group/img">
+          <button @click="fileList.splice(fileList.indexOf(file), 1)"
+                  class="absolute z-10 hidden group-hover/img:block rounded-full bg-neutral-100 right-0 hover:brightness-75 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 16 16">
+              <path fill="currentColor"
+                    d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94z"/>
+            </svg>
+          </button>
+          <img :src="file.url"
+               class="max-h-16 m-1 shadow-xl cursor-pointer group-hover/img:brightness-75 transition-all rounded-md"
+               alt="selected image" @click="handleImgZoom($event.target as HTMLImageElement)"/>
+        </li>
+      </ul>
+    </div>
+    <div class="flex items-end">
+      <UTooltip :text="addHistory?$t('with_history'):$t('without_history')">
+        <UButton class="m-1" @click="addHistory = !addHistory" :color="addHistory?'primary':'gray'"
+                 icon="i-heroicons-clock-solid"/>
+      </UTooltip>
+      <UTooltip v-if="selectedModel.type === 'universal'" :text="$t('add_image') + '(' + $t('support_paste') + ')'">
+        <UButton @click="handleAddFiles" color="white" class="m-1" icon="i-heroicons-paper-clip-16-solid"/>
+      </UTooltip>
+      <UTextarea v-model="input" :placeholder="$t('please_input_text') + '...' "
+                 @keydown.prevent.enter="handleInput($event)"
+                 @paste="handlePaste"
+                 autofocus :rows="1" autoresize
+                 class="flex-1 max-h-48 overflow-y-auto p-1"/>
+      <UButton @click="handleInput($event)" :disabled="loading" class="m-1">
+        {{ $t('send') }}
+      </UButton>
+    </div>
+  </div>
+</template>
