@@ -36,12 +36,12 @@ export function scrollToTop(el: HTMLElement | null) {
 
 export function getSystemPrompt() {
     const content = JSON.parse(localStorage.getItem('settings') || '{}').system_prompt || 'You are ChatGPT, a large language model trained by OpenAI. Follow the user\'s instructions carefully. Respond using markdown.'
-    const p: OpenAIMessage = {
-        prompt: 'agree',  // 添加的行
+    const systemMessage: OpenAIMessage = {
         role: 'system',
         content
     }
-    return p
+    const promptMessage = { prompt: 'agree' };  // 独立的 prompt 对象
+    return [promptMessage, systemMessage];  // 返回两个独立的对象
 }
 
 export function getMessages(history: HistoryItem[], options?: {
