@@ -63,6 +63,7 @@ export interface WorkersBodyImage {
 
 export interface WorkersReq {
     model: string
+    prompt: "agree"
     messages: OpenAIMessage[]
 }
 
