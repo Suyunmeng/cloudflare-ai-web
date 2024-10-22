@@ -61,7 +61,7 @@ export function getMessages(history: HistoryItem[], options?: {
     }
     if (options?.addHistory)
         return [
-            getLicencePrompt();
+            getLicencePrompt(),
             getSystemPrompt()
         ].concat(history.slice(0, -1).filter(i => i.type === 'text').map((item) => {
             return {
@@ -71,7 +71,7 @@ export function getMessages(history: HistoryItem[], options?: {
         }))
     else
         return [
-            getLicencePrompt();
+            getLicencePrompt(),
             getSystemPrompt()
         ].concat({
             role: history[history.length - 2].role,
