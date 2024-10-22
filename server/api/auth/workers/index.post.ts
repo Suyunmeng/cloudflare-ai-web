@@ -3,11 +3,10 @@ import {WorkersBody, WorkersReq} from "~/utils/types";
 
 export default defineEventHandler(async (event) => {
     const body: WorkersReq = await readBody(event)
-    const {model, messages} = body
+    const {model, prompt, messages} = body
 
     const workersBody: WorkersBody = {
         stream: true,
-        prompt: "agree",
         messages,
     }
 
