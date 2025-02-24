@@ -89,6 +89,23 @@ export const textGenModels: Model[] = [{
     endpoint: 'chat/completions',
     type: 'chat'
 }, {
+    id: 'gpt-4o-mini',
+    name: 'ChatGPT-4o-mini',
+    provider: 'openai',
+    endpoint: 'chat/completions',
+    type: 'chat'
+}, {
+    id: 'gpt-o3-mini',
+    name: 'ChatGPT-o3-mini',
+    provider: 'openai',
+    endpoint: 'chat/completions',
+    type: 'chat'
+}, {
+    id: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b',
+    name: 'deepseek-r1-distill-qwen-32b',
+    provider: 'workers-ai',
+    type: 'chat'
+}, {
     id: '@cf/qwen/qwen1.5-14b-chat-awq',
     name: 'qwen1.5-14b-chat-awq',
     provider: 'workers-ai',
@@ -119,8 +136,8 @@ export const textGenModels: Model[] = [{
     provider: 'workers-ai',
     type: 'chat'
 }, {
-    id: '@cf/meta/llama-3.2-3b-instruct',
-    name: 'llama-3.2-3b-instruct',
+    id: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
+    name: 'llama-3.3-70b-instruct-fp8-fast',
     provider: 'workers-ai',
     type: 'chat'
 }]
